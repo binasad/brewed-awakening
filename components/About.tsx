@@ -14,8 +14,7 @@ const stats = [
 
 export default function About() {
   const sectionRef = useRef<HTMLElement>(null);
-  const revealRef = useRef<HTMLDivElement>(null);
-  const imgRef = useRef<HTMLDivElement>(null);
+  const mainImgRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -23,29 +22,25 @@ export default function About() {
 
     const ctx = gsap.context(() => {
       // Set initial states explicitly
-      gsap.set(".about-decor", { y: 80, opacity: 0 });
+      gsap.set(".about-main-img-wrap", { x: -200, rotate: -12, opacity: 0, scale: 0.85 });
+      gsap.set(".about-decor", { x: 200, rotate: 15, opacity: 0, scale: 0.85 });
       gsap.set(".about-label", { y: 30, opacity: 0 });
       gsap.set(".about-heading", { y: 50, opacity: 0 });
 
-      // Image reveal
-      gsap.to(revealRef.current, {
-        scaleY: 0,
-        ease: "power4.inOut",
-        duration: 1.5,
-        scrollTrigger: { trigger: section, start: "top 85%", once: true },
-      });
-      gsap.to(".about-main-img", {
-        scale: 1,
-        ease: "power2.out",
-        duration: 1.8,
+      // Main image flies in from left with rotation
+      const imgTl = gsap.timeline({
         scrollTrigger: { trigger: section, start: "top 85%", once: true },
       });
 
-      // Decor image
-      gsap.to(".about-decor", {
-        y: 0, opacity: 1, duration: 1, delay: 0.5, ease: "power3.out",
-        scrollTrigger: { trigger: section, start: "top 80%", once: true },
-      });
+      imgTl.to(".about-main-img-wrap", {
+        x: 0, rotate: 0, opacity: 1, scale: 1,
+        duration: 1.4, ease: "power3.out",
+      })
+      // Decor image flies in from right with rotation, slightly delayed
+      .to(".about-decor", {
+        x: 0, rotate: 0, opacity: 1, scale: 1,
+        duration: 1.2, ease: "power3.out",
+      }, "-=0.8");
 
       // Text
       gsap.to(".about-label", {
@@ -94,17 +89,16 @@ export default function About() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 max-w-[1400px] mx-auto w-full items-center">
         {/* Image Column */}
         <div className="relative">
-          <div ref={imgRef} className="relative overflow-hidden rounded-lg">
+          <div ref={mainImgRef} className="about-main-img-wrap relative overflow-hidden rounded-lg will-change-transform">
             <Image
               src="/images/nathan-dumlao-zEdCT0qrodE-unsplash.jpg"
               alt="Cafe atmosphere"
               width={800}
               height={600}
-              className="about-main-img w-full h-[280px] md:h-[400px] lg:h-[600px] object-cover scale-[1.2]"
+              className="w-full h-[280px] md:h-[400px] lg:h-[600px] object-cover"
             />
-            <div ref={revealRef} className="absolute inset-0 bg-dark origin-top" />
           </div>
-          <div className="about-decor absolute w-[100px] md:w-[150px] lg:w-[200px] right-[-15px] md:right-[-30px] lg:right-[-60px] bottom-[-15px] md:bottom-[-30px] lg:bottom-[-60px] rounded-lg overflow-hidden shadow-2xl">
+          <div className="about-decor absolute w-[100px] md:w-[150px] lg:w-[200px] right-[-15px] md:right-[-30px] lg:right-[-60px] bottom-[-15px] md:bottom-[-30px] lg:bottom-[-60px] rounded-lg overflow-hidden shadow-2xl will-change-transform">
             <Image
               src="/images/nathan-dumlao-Y3AqmbmtLQI-unsplash.jpg"
               alt="Bean to cup"
