@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Brewed Awakening | Artisan Coffee</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Reset ── */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html.lenis, html.lenis body { height: auto; }
+    .lenis.lenis-smooth { scroll-behavior: auto; }
+    .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+    html { scroll-behavior: auto; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0a0a0a;
+      color: #f5f0eb;
+      overflow-x: clip;
+      width: 100%;
+    }
+    /* Ensure gallery is not clipped by pin-spacer */
+    .pin-spacer { overflow: visible !important; }
+    a { text-decoration: none; color: inherit; }
+
+    /* ── Custom cursor ── */
+    .cursor-dot {
+      width: 8px; height: 8px;
+      background: #c8a97e;
+      border-radius: 50%;
+      position: fixed;
+      top: 0; left: 0;
+      pointer-events: none;
+      z-index: 9999;
+      mix-blend-mode: difference;
+    }
+    .cursor-ring {
+      width: 40px; height: 40px;
+      border: 1.5px solid rgba(200,169,126,.5);
+      border-radius: 50%;
+      position: fixed;
+      top: 0; left: 0;
+      pointer-events: none;
+      z-index: 9998;
+      transition: width .3s, height .3s, border-color .3s;
+    }
+
+    /* ── Loader ── */
+    #loader {
+      position: fixed; inset: 0;
+      background: #0a0a0a;
+      z-index: 10000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    #loader .loader-text {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.5rem, 4vw, 3rem);
+      color: #c8a97e;
+      letter-spacing: .2em;
+    }
+    #loader .loader-bar {
+      width: 200px; height: 2px;
+      background: rgba(200,169,126,.2);
+      margin-top: 2rem;
+      position: relative;
+      overflow: hidden;
+      border-radius: 2px;
+    }
+    #loader .loader-bar span {
+      position: absolute;
+      height: 100%;
+      width: 0%;
+      background: #c8a97e;
+      border-radius: 2px;
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; width: 100%;
+      padding: 1.5rem 4rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+      mix-blend-mode: difference;
+    }
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: .05em;
+    }
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+    .nav-links a {
+      font-size: .85rem;
+      font-weight: 400;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      position: relative;
+      transition: color .3s;
+    }
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px; left: 0;
+      width: 0; height: 1px;
+      background: #c8a97e;
+      transition: width .3s;
+    }
+    .nav-links a:hover::after { width: 100%; }
+
+    /* ── HERO ── */
+    #hero {
+      position: relative;
+      height: 300vh;
+      width: 100%;
+    }
+    .hero-video-wrap {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      width: 100%;
+      overflow: hidden;
+    }
+    .hero-video-wrap video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(10,10,10,.3) 0%,
+        rgba(10,10,10,.1) 40%,
+        rgba(10,10,10,.6) 100%
+      );
+    }
+    .hero-content {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 0 2rem;
+    }
+    .hero-subtitle {
+      font-size: clamp(.7rem, 1.2vw, 1rem);
+      letter-spacing: .4em;
+      text-transform: uppercase;
+      color: #c8a97e;
+      margin-bottom: 1.5rem;
+      opacity: 0;
+    }
+    .hero-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.5rem, 8vw, 7rem);
+      font-weight: 700;
+      line-height: 1.05;
+      overflow: hidden;
+    }
+    .hero-title .line {
+      display: block;
+      overflow: hidden;
+    }
+    .hero-title .line span {
+      display: inline-block;
+      transform: translateY(120%);
+    }
+    .hero-tagline {
+      font-size: clamp(.85rem, 1.5vw, 1.1rem);
+      font-weight: 300;
+      margin-top: 2rem;
+      letter-spacing: .05em;
+      opacity: 0;
+      color: rgba(245,240,235,.7);
+    }
+    .hero-scroll-indicator {
+      position: absolute;
+      bottom: 3rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: .5rem;
+      opacity: 0;
+    }
+    .hero-scroll-indicator span {
+      font-size: .7rem;
+      letter-spacing: .3em;
+      text-transform: uppercase;
+      color: rgba(245,240,235,.5);
+    }
+    .scroll-line {
+      width: 1px;
+      height: 60px;
+      background: linear-gradient(to bottom, #c8a97e, transparent);
+      animation: scrollPulse 2s ease-in-out infinite;
+    }
+    @keyframes scrollPulse {
+      0%, 100% { opacity: .3; transform: scaleY(.5); }
+      50% { opacity: 1; transform: scaleY(1); }
+    }
+
+    /* ── ABOUT ── */
+    #about {
+      position: relative;
+      padding: 10rem 4rem;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+    }
+    .about-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6rem;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+      align-items: center;
+    }
+    .about-image-col {
+      position: relative;
+    }
+    .about-img-wrap {
+      position: relative;
+      overflow: hidden;
+      border-radius: 8px;
+    }
+    .about-img-wrap img {
+      width: 100%;
+      height: 600px;
+      object-fit: cover;
+      display: block;
+      transform: scale(1.2);
+    }
+    .about-img-reveal {
+      position: absolute;
+      inset: 0;
+      background: #0a0a0a;
+      transform-origin: top;
+    }
+    .about-decor-img {
+      position: absolute;
+      width: 200px;
+      right: -60px;
+      bottom: -60px;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,.5);
+    }
+    .about-decor-img img {
+      width: 100%;
+      display: block;
+    }
+    .about-text-col {
+      padding-left: 2rem;
+    }
+    .section-label {
+      font-size: .75rem;
+      letter-spacing: .4em;
+      text-transform: uppercase;
+      color: #c8a97e;
+      margin-bottom: 2rem;
+      display: inline-block;
+    }
+    .about-heading {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      font-weight: 700;
+      line-height: 1.15;
+      margin-bottom: 2rem;
+    }
+    .about-text {
+      font-size: 1rem;
+      line-height: 1.8;
+      color: rgba(245,240,235,.6);
+      margin-bottom: 1.5rem;
+    }
+    .about-text .word {
+      display: inline-block;
+      opacity: 0;
+      transform: translateY(10px);
+      margin-right: .3em;
+    }
+    .about-stats {
+      display: flex;
+      gap: 3rem;
+      margin-top: 3rem;
+      padding-top: 3rem;
+      border-top: 1px solid rgba(200,169,126,.15);
+    }
+    .stat-item { text-align: left; }
+    .stat-number {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #c8a97e;
+    }
+    .stat-label {
+      font-size: .8rem;
+      letter-spacing: .1em;
+      color: rgba(245,240,235,.5);
+      margin-top: .5rem;
+    }
+
+    /* ── MENU ── */
+    #menu {
+      position: relative;
+      padding: 10rem 4rem;
+      min-height: 100vh;
+      background: #0d0d0d;
+    }
+    .menu-header {
+      text-align: center;
+      max-width: 600px;
+      margin: 0 auto 6rem;
+    }
+    .menu-heading {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+    .menu-sub {
+      font-size: 1rem;
+      color: rgba(245,240,235,.5);
+      line-height: 1.6;
+    }
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 3rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      perspective: 1200px;
+    }
+    .menu-card {
+      position: relative;
+      height: 450px;
+      cursor: pointer;
+      transform-style: preserve-3d;
+    }
+    .menu-card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+      transition: transform .8s cubic-bezier(.4,0,.2,1);
+    }
+    .menu-card:hover .menu-card-inner {
+      transform: rotateY(180deg);
+    }
+    .card-front, .card-back {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .card-front {
+      background: #151515;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      border: 1px solid rgba(200,169,126,.1);
+    }
+    .card-front img {
+      width: 200px;
+      height: 200px;
+      object-fit: contain;
+      margin-bottom: 2rem;
+      filter: drop-shadow(0 20px 40px rgba(0,0,0,.4));
+    }
+    .card-front h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      margin-bottom: .5rem;
+    }
+    .card-front .card-price {
+      font-size: 1.1rem;
+      color: #c8a97e;
+      font-weight: 500;
+    }
+    .card-back {
+      background: linear-gradient(135deg, #c8a97e 0%, #a07850 100%);
+      transform: rotateY(180deg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2.5rem;
+      text-align: center;
+    }
+    .card-back h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      color: #0a0a0a;
+      margin-bottom: 1rem;
+    }
+    .card-back p {
+      font-size: .95rem;
+      line-height: 1.7;
+      color: rgba(10,10,10,.75);
+      margin-bottom: 1.5rem;
+    }
+    .card-back .card-detail {
+      font-size: .8rem;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: rgba(10,10,10,.5);
+    }
+
+    /* ── ATMOSPHERE / GALLERY ── */
+    #atmosphere {
+      position: relative;
+      padding: 4rem 0 0;
+      overflow: visible;
+    }
+    .atmosphere-header {
+      text-align: center;
+      padding: 0 4rem;
+      margin-bottom: 2.5rem;
+    }
+    .atmosphere-heading {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+    .atmosphere-sub {
+      font-size: 1rem;
+      color: rgba(245,240,235,.5);
+    }
+    .gallery-track {
+      display: flex;
+      gap: 2rem;
+      padding: 0 4rem;
+      width: max-content;
+    }
+    .gallery-item {
+      width: 450px;
+      height: calc(100vh - 280px);
+      border-radius: 12px;
+      overflow: hidden;
+      flex-shrink: 0;
+      position: relative;
+    }
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 1s cubic-bezier(.4,0,.2,1);
+    }
+    .gallery-item:hover img {
+      transform: scale(1.05);
+    }
+    .gallery-item-overlay {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      padding: 2rem;
+      background: linear-gradient(to top, rgba(10,10,10,.8), transparent);
+    }
+    .gallery-item-overlay h4 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+    }
+    .gallery-item-overlay p {
+      font-size: .85rem;
+      color: rgba(245,240,235,.6);
+      margin-top: .3rem;
+    }
+
+    /* ── CONTACT ── */
+    #contact {
+      position: relative;
+      padding: 10rem 4rem;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+    }
+    .contact-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .contact-info h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      font-weight: 700;
+      margin-bottom: 2rem;
+    }
+    .contact-info p {
+      font-size: 1rem;
+      line-height: 1.8;
+      color: rgba(245,240,235,.6);
+      margin-bottom: 2rem;
+    }
+    .contact-detail {
+      margin-bottom: 1.5rem;
+    }
+    .contact-detail-label {
+      font-size: .75rem;
+      letter-spacing: .3em;
+      text-transform: uppercase;
+      color: #c8a97e;
+      margin-bottom: .5rem;
+    }
+    .contact-detail-value {
+      font-size: 1rem;
+      color: rgba(245,240,235,.8);
+    }
+    .contact-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    .form-group {
+      position: relative;
+    }
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid rgba(200,169,126,.2);
+      padding: 1rem 0;
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      color: #f5f0eb;
+      outline: none;
+      transition: border-color .3s;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus {
+      border-color: #c8a97e;
+    }
+    .form-group label {
+      position: absolute;
+      left: 0;
+      top: 1rem;
+      font-size: .9rem;
+      color: rgba(245,240,235,.4);
+      pointer-events: none;
+      transition: all .3s;
+    }
+    .form-group input:focus ~ label,
+    .form-group input:not(:placeholder-shown) ~ label,
+    .form-group textarea:focus ~ label,
+    .form-group textarea:not(:placeholder-shown) ~ label {
+      top: -.8rem;
+      font-size: .7rem;
+      color: #c8a97e;
+      letter-spacing: .1em;
+    }
+    .form-group textarea {
+      resize: none;
+      height: 120px;
+    }
+    .submit-btn {
+      align-self: flex-start;
+      background: transparent;
+      border: 1px solid #c8a97e;
+      color: #c8a97e;
+      padding: 1rem 3rem;
+      font-family: 'Inter', sans-serif;
+      font-size: .85rem;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: color .4s;
+    }
+    .submit-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: #c8a97e;
+      transform: scaleX(0);
+      transform-origin: right;
+      transition: transform .4s cubic-bezier(.4,0,.2,1);
+      z-index: -1;
+    }
+    .submit-btn:hover {
+      color: #0a0a0a;
+    }
+    .submit-btn:hover::before {
+      transform: scaleX(1);
+      transform-origin: left;
+    }
+
+    /* ── Footer ── */
+    footer {
+      padding: 3rem 4rem;
+      border-top: 1px solid rgba(200,169,126,.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .footer-copy {
+      font-size: .8rem;
+      color: rgba(245,240,235,.4);
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 1024px) {
+      nav { padding: 1.2rem 2rem; }
+      .nav-links { display: none; }
+      .about-inner { grid-template-columns: 1fr; gap: 4rem; }
+      .about-img-wrap img { height: 400px; }
+      .about-decor-img { width: 150px; right: -30px; bottom: -30px; }
+      .menu-grid { grid-template-columns: repeat(2, 1fr); gap: 2rem; }
+      #about, #menu, #contact { padding: 6rem 2rem; }
+      .contact-inner { grid-template-columns: 1fr; gap: 4rem; }
+      .gallery-item { width: 350px; height: calc(100vh - 200px); }
+    }
+    @media (max-width: 640px) {
+      .menu-grid { grid-template-columns: 1fr; }
+      .about-stats { gap: 2rem; }
+      .gallery-item { width: 280px; height: calc(100vh - 180px); }
+      footer { flex-direction: column; gap: 1rem; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Cursor -->
+  <div class="cursor-dot"></div>
+  <div class="cursor-ring"></div>
+
+  <!-- Loader -->
+  <div id="loader">
+    <div class="loader-text">Brewed Awakening</div>
+    <div class="loader-bar"><span></span></div>
+  </div>
+
+  <!-- Nav -->
+  <nav>
+    <div class="nav-logo">Brewed Awakening</div>
+    <ul class="nav-links">
+      <li><a href="#hero">Home</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#menu">Menu</a></li>
+      <li><a href="#atmosphere">Atmosphere</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- ═══ HERO ═══ -->
+  <section id="hero">
+    <div class="hero-video-wrap">
+      <video src="Steaming_latte_cup_cafe_table_delpmaspu_.mp4" muted playsinline preload="auto"></video>
+      <div class="hero-overlay"></div>
+      <div class="hero-content">
+        <p class="hero-subtitle">Artisan Coffee Experience</p>
+        <h1 class="hero-title">
+          <span class="line"><span>Brewed</span></span>
+          <span class="line"><span>Awakening</span></span>
+        </h1>
+        <p class="hero-tagline">Where every sip tells a story</p>
+      </div>
+      <div class="hero-scroll-indicator">
+        <span>Scroll</span>
+        <div class="scroll-line"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ ABOUT ═══ -->
+  <section id="about">
+    <div class="about-inner">
+      <div class="about-image-col">
+        <div class="about-img-wrap">
+          <img src="nathan-dumlao-zEdCT0qrodE-unsplash.jpg" alt="Cafe atmosphere" />
+          <div class="about-img-reveal"></div>
+        </div>
+        <div class="about-decor-img">
+          <img src="nathan-dumlao-Y3AqmbmtLQI-unsplash.jpg" alt="Bean to cup" />
+        </div>
+      </div>
+      <div class="about-text-col">
+        <span class="section-label">Our Story</span>
+        <h2 class="about-heading">Crafted with Passion, Served with Love</h2>
+        <p class="about-text" data-animate="words">We believe great coffee is an art form. Each cup we serve is a testament to our dedication to sourcing the finest beans, roasting them to perfection, and crafting beverages that awaken your senses. From our carefully curated single-origin selections to our signature blends, every detail matters.</p>
+        <p class="about-text" data-animate="words">Step into our space and feel the warmth of a community built around the love of exceptional coffee. This is more than a cafe. This is your second home.</p>
+        <div class="about-stats">
+          <div class="stat-item">
+            <div class="stat-number" data-count="12">0</div>
+            <div class="stat-label">Years of Craft</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number" data-count="30">0</div>
+            <div class="stat-label">Bean Origins</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number" data-count="50000">0</div>
+            <div class="stat-label">Cups Served</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ MENU ═══ -->
+  <section id="menu">
+    <div class="menu-header">
+      <span class="section-label">The Menu</span>
+      <h2 class="menu-heading">Our Signature Drinks</h2>
+      <p class="menu-sub">Hover to discover the story behind each brew</p>
+    </div>
+    <div class="menu-grid">
+      <!-- Card 1 -->
+      <div class="menu-card">
+        <div class="menu-card-inner">
+          <div class="card-front">
+            <img src="good coffee.png" alt="Classic Espresso" />
+            <h3>Classic Espresso</h3>
+            <span class="card-price">$4.50</span>
+          </div>
+          <div class="card-back">
+            <h3>Classic Espresso</h3>
+            <p>A bold, full-bodied shot pulled from our house blend of Brazilian and Ethiopian beans. Rich crema, notes of dark chocolate and toasted walnut.</p>
+            <span class="card-detail">Double Shot &bull; 2oz</span>
+          </div>
+        </div>
+      </div>
+      <!-- Card 2 -->
+      <div class="menu-card">
+        <div class="menu-card-inner">
+          <div class="card-front">
+            <img src="d4cadc01-3daf-4206-9b57-25eb8febddbb.png" alt="Velvet Latte" />
+            <h3>Velvet Latte</h3>
+            <span class="card-price">$5.50</span>
+          </div>
+          <div class="card-back">
+            <h3>Velvet Latte</h3>
+            <p>Silky steamed milk meets our signature espresso. Topped with latte art crafted by skilled hands. Smooth, creamy, and perfectly balanced.</p>
+            <span class="card-detail">Milk Choice &bull; 12oz</span>
+          </div>
+        </div>
+      </div>
+      <!-- Card 3 -->
+      <div class="menu-card">
+        <div class="menu-card-inner">
+          <div class="card-front">
+            <img src="hf_20260313_204238_dfc4f73b-13d0-4207-90f6-ae4cd8a7924f.jpeg" alt="Caramel Macchiato" />
+            <h3>Caramel Macchiato</h3>
+            <span class="card-price">$6.00</span>
+          </div>
+          <div class="card-back">
+            <h3>Caramel Macchiato</h3>
+            <p>Layers of vanilla-infused milk, bold espresso, and house-made caramel drizzle. A sweet symphony in every sip that keeps you coming back.</p>
+            <span class="card-detail">Hot or Iced &bull; 16oz</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ ATMOSPHERE ═══ -->
+  <section id="atmosphere">
+    <div class="atmosphere-header">
+      <span class="section-label">The Space</span>
+      <h2 class="atmosphere-heading">Feel the Atmosphere</h2>
+      <p class="atmosphere-sub">Scroll to explore our world</p>
+    </div>
+    <div class="gallery-track">
+      <div class="gallery-item">
+        <img src="pt2.jpeg" alt="Cafe interior" />
+        <div class="gallery-item-overlay">
+          <h4>Warm Interiors</h4>
+          <p>Where comfort meets elegance</p>
+        </div>
+      </div>
+      <div class="gallery-item">
+        <img src="fahmi-fakhrudin-nzyzAUsbV0M-unsplash.jpg" alt="Latte art pour" />
+        <div class="gallery-item-overlay">
+          <h4>The Pour</h4>
+          <p>Milk meets espresso</p>
+        </div>
+      </div>
+      <div class="gallery-item">
+        <img src="nathan-dumlao-6VhPY27jdps-unsplash.jpg" alt="Coffee cheers" />
+        <div class="gallery-item-overlay">
+          <h4>Together</h4>
+          <p>Shared moments, better sips</p>
+        </div>
+      </div>
+      <div class="gallery-item">
+        <img src="nathan-dumlao-Y3AqmbmtLQI-unsplash.jpg" alt="Bean to cup" />
+        <div class="gallery-item-overlay">
+          <h4>Bean to Cup</h4>
+          <p>The journey of every brew</p>
+        </div>
+      </div>
+      <div class="gallery-item">
+        <img src="ante-samarzija-lsmu0rUhUOk-unsplash.jpg" alt="Coffee splash" />
+        <div class="gallery-item-overlay">
+          <h4>The Drama</h4>
+          <p>Bold flavors, bold moments</p>
+        </div>
+      </div>
+      <div class="gallery-item">
+        <img src="nathan-dumlao-zUNs99PGDg0-unsplash.jpg" alt="Latte art with plants" />
+        <div class="gallery-item-overlay">
+          <h4>Nature & Brew</h4>
+          <p>Green vibes, golden cups</p>
+        </div>
+      </div>
+      <div class="gallery-item">
+        <img src="nathan-dumlao-nBJHO6wmRWw-unsplash.jpg" alt="Coffee closeup" />
+        <div class="gallery-item-overlay">
+          <h4>Up Close</h4>
+          <p>Every detail matters</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ CONTACT ═══ -->
+  <section id="contact">
+    <div class="contact-inner">
+      <div class="contact-info">
+        <span class="section-label">Get in Touch</span>
+        <h2>Visit Us Today</h2>
+        <p>We'd love to welcome you to our space. Drop by for a cup, or reach out below and we'll get back to you.</p>
+        <div class="contact-detail">
+          <div class="contact-detail-label">Location</div>
+          <div class="contact-detail-value">123 Roast Avenue, Coffee District</div>
+        </div>
+        <div class="contact-detail">
+          <div class="contact-detail-label">Hours</div>
+          <div class="contact-detail-value">Mon - Fri: 7am - 8pm<br/>Sat - Sun: 8am - 9pm</div>
+        </div>
+        <div class="contact-detail">
+          <div class="contact-detail-label">Phone</div>
+          <div class="contact-detail-value">+1 (555) 123-4567</div>
+        </div>
+      </div>
+      <form class="contact-form" onsubmit="event.preventDefault()">
+        <div class="form-group">
+          <input type="text" id="name" placeholder=" " />
+          <label for="name">Your Name</label>
+        </div>
+        <div class="form-group">
+          <input type="email" id="email" placeholder=" " />
+          <label for="email">Email Address</label>
+        </div>
+        <div class="form-group">
+          <textarea id="message" placeholder=" "></textarea>
+          <label for="message">Your Message</label>
+        </div>
+        <button type="submit" class="submit-btn">Send Message</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-logo">Brewed Awakening</div>
+    <div class="footer-copy">&copy; 2026 Brewed Awakening. All rights reserved.</div>
+  </footer>
+
+  <!-- Lenis Smooth Scroll + GSAP -->
+  <script src="https://unpkg.com/lenis@1.1.18/dist/lenis.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script>
+    gsap.registerPlugin(ScrollTrigger);
+
+    /* ── Lenis Smooth Scroll ── */
+    const lenis = new Lenis({
+      duration: 1.8,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+      touchMultiplier: 1.5,
+      wheelMultiplier: 0.9,
+    });
+
+    lenis.on('scroll', ScrollTrigger.update);
+
+    gsap.ticker.add((time) => {
+      lenis.raf(time * 1000);
+    });
+    gsap.ticker.lagSmoothing(0);
+
+    /* ── Custom Cursor ── */
+    const dot = document.querySelector('.cursor-dot');
+    const ring = document.querySelector('.cursor-ring');
+    let mouseX = 0, mouseY = 0, ringX = 0, ringY = 0;
+
+    window.addEventListener('mousemove', e => {
+      mouseX = e.clientX; mouseY = e.clientY;
+      dot.style.left = mouseX - 4 + 'px';
+      dot.style.top = mouseY - 4 + 'px';
+    });
+
+    function animateCursor() {
+      ringX += (mouseX - ringX) * 0.15;
+      ringY += (mouseY - ringY) * 0.15;
+      ring.style.left = ringX - 20 + 'px';
+      ring.style.top = ringY - 20 + 'px';
+      requestAnimationFrame(animateCursor);
+    }
+    animateCursor();
+
+    /* ── Loader ── */
+    const loaderBar = document.querySelector('#loader .loader-bar span');
+    const video = document.querySelector('#hero video');
+
+    gsap.to(loaderBar, {
+      width: '100%',
+      duration: 2,
+      ease: 'power2.inOut',
+      onComplete: () => {
+        gsap.to('#loader', {
+          yPercent: -100,
+          duration: 1,
+          ease: 'power4.inOut',
+          onComplete: () => {
+            document.getElementById('loader').style.display = 'none';
+            animateHero();
+          }
+        });
+      }
+    });
+
+    /* ── Hero Animations ── */
+    function animateHero() {
+      const tl = gsap.timeline();
+
+      tl.to('.hero-title .line span', {
+        y: 0,
+        duration: 1.2,
+        stagger: 0.15,
+        ease: 'power4.out'
+      })
+      .to('.hero-subtitle', {
+        opacity: 1,
+        duration: .8,
+        ease: 'power2.out'
+      }, '-=.6')
+      .to('.hero-tagline', {
+        opacity: 1,
+        duration: .8,
+        ease: 'power2.out'
+      }, '-=.4')
+      .to('.hero-scroll-indicator', {
+        opacity: 1,
+        duration: .6,
+        ease: 'power2.out'
+      }, '-=.2');
+
+      // Video scrub on scroll
+      video.play().then(() => {
+        video.pause();
+        video.currentTime = 0;
+
+        ScrollTrigger.create({
+          trigger: '#hero',
+          start: 'top top',
+          end: 'bottom bottom',
+          onUpdate: self => {
+            if (video.duration) {
+              video.currentTime = self.progress * video.duration;
+            }
+          }
+        });
+      }).catch(() => {
+        // Autoplay blocked; try muted
+        video.muted = true;
+        video.play().then(() => {
+          video.pause();
+          video.currentTime = 0;
+          ScrollTrigger.create({
+            trigger: '#hero',
+            start: 'top top',
+            end: 'bottom bottom',
+            onUpdate: self => {
+              if (video.duration) {
+                video.currentTime = self.progress * video.duration;
+              }
+            }
+          });
+        });
+      });
+
+      // Hero content fade out on scroll
+      gsap.to('.hero-content', {
+        opacity: 0,
+        y: -100,
+        scrollTrigger: {
+          trigger: '#hero',
+          start: '15% top',
+          end: '40% top',
+          scrub: 1.5
+        }
+      });
+      gsap.to('.hero-scroll-indicator', {
+        opacity: 0,
+        scrollTrigger: {
+          trigger: '#hero',
+          start: '5% top',
+          end: '15% top',
+          scrub: true
+        }
+      });
+    }
+
+    /* ── About: Image Reveal ── */
+    gsap.to('.about-img-reveal', {
+      scaleY: 0,
+      ease: 'power4.inOut',
+      duration: 1.5,
+      scrollTrigger: {
+        trigger: '#about',
+        start: 'top 60%',
+        toggleActions: 'play none none none'
+      }
+    });
+
+    gsap.to('.about-img-wrap img', {
+      scale: 1,
+      ease: 'power2.out',
+      duration: 1.8,
+      scrollTrigger: {
+        trigger: '#about',
+        start: 'top 60%',
+        toggleActions: 'play none none none'
+      }
+    });
+
+    // Decor image
+    gsap.from('.about-decor-img', {
+      y: 80,
+      opacity: 0,
+      duration: 1,
+      delay: .5,
+      ease: 'power3.out',
+      scrollTrigger: {
+        trigger: '#about',
+        start: 'top 50%',
+        toggleActions: 'play none none none'
+      }
+    });
+
+    // About section label & heading
+    gsap.from('.about-text-col .section-label', {
+      y: 30, opacity: 0, duration: .8,
+      scrollTrigger: { trigger: '#about', start: 'top 60%', toggleActions: 'play none none none' }
+    });
+    gsap.from('.about-heading', {
+      y: 50, opacity: 0, duration: 1,
+      scrollTrigger: { trigger: '#about', start: 'top 55%', toggleActions: 'play none none none' }
+    });
+
+    /* ── About: Word-by-Word Reveal ── */
+    document.querySelectorAll('[data-animate="words"]').forEach(p => {
+      const text = p.textContent;
+      p.innerHTML = text.split(' ').map(w => `<span class="word">${w}</span>`).join(' ');
+
+      gsap.to(p.querySelectorAll('.word'), {
+        opacity: 1,
+        y: 0,
+        stagger: 0.02,
+        duration: 0.5,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: p,
+          start: 'top 75%',
+          toggleActions: 'play none none none'
+        }
+      });
+    });
+
+    /* ── About: Counter Animation ── */
+    document.querySelectorAll('.stat-number').forEach(el => {
+      const target = parseInt(el.dataset.count);
+      gsap.to(el, {
+        innerText: target,
+        duration: 2,
+        ease: 'power2.out',
+        snap: { innerText: 1 },
+        scrollTrigger: {
+          trigger: el,
+          start: 'top 80%',
+          toggleActions: 'play none none none'
+        },
+        onUpdate: function() {
+          const val = Math.round(parseFloat(el.innerText));
+          el.innerText = val >= 1000 ? val.toLocaleString() + '+' : val + '+';
+        }
+      });
+    });
+
+    /* ── Menu: Cards fly in with 3D ── */
+    gsap.from('.menu-header', {
+      y: 60, opacity: 0, duration: 1,
+      scrollTrigger: { trigger: '#menu', start: 'top 60%', toggleActions: 'play none none none' }
+    });
+
+    gsap.from('.menu-card', {
+      rotationY: -90,
+      opacity: 0,
+      stagger: 0.2,
+      duration: 1.2,
+      ease: 'power3.out',
+      transformOrigin: 'left center',
+      scrollTrigger: {
+        trigger: '.menu-grid',
+        start: 'top 70%',
+        toggleActions: 'play none none none'
+      }
+    });
+
+    /* ── Atmosphere: Horizontal Scroll ── */
+    gsap.from('.atmosphere-header', {
+      y: 60, opacity: 0, duration: 1,
+      scrollTrigger: { trigger: '#atmosphere', start: 'top 60%', toggleActions: 'play none none none' }
+    });
+
+    const track = document.querySelector('.gallery-track');
+    const trackWidth = track.scrollWidth - window.innerWidth;
+
+    gsap.to(track, {
+      x: -trackWidth,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: '#atmosphere',
+        start: 'top top',
+        end: () => '+=' + trackWidth,
+        pin: true,
+        scrub: 2,
+        anticipatePin: 1,
+        invalidateOnRefresh: true,
+      }
+    });
+
+    /* ── Contact: Stagger In ── */
+    gsap.from('.contact-info > *', {
+      y: 40, opacity: 0,
+      stagger: 0.1,
+      duration: .8,
+      ease: 'power3.out',
+      scrollTrigger: { trigger: '#contact', start: 'top 60%', toggleActions: 'play none none none' }
+    });
+
+    gsap.from('.form-group, .submit-btn', {
+      y: 40, opacity: 0,
+      stagger: 0.12,
+      duration: .8,
+      ease: 'power3.out',
+      scrollTrigger: { trigger: '.contact-form', start: 'top 70%', toggleActions: 'play none none none' }
+    });
+
+    /* ── Smooth scroll for nav (uses Lenis) ── */
+    document.querySelectorAll('.nav-links a').forEach(link => {
+      link.addEventListener('click', e => {
+        e.preventDefault();
+        const target = document.querySelector(link.getAttribute('href'));
+        if (target) {
+          lenis.scrollTo(target, { duration: 2 });
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>
